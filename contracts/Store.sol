@@ -51,6 +51,7 @@ contract Store {
         uint256 orderTotalBuyPriceInETH;
         bool hasBeenReviewed;
         Status orderStatus;
+        string shippingAddress;
     }
 
     struct ProductReview {
@@ -63,7 +64,7 @@ contract Store {
     // MODIFIERS
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "only owner can call this");
+        require(msg.sender == owner, "Only owner can call this");
         _;
     }
 
@@ -79,6 +80,7 @@ contract Store {
         storeMetaData = _storeMetaData;
         factory = _factory;
     }
+
 
     //--------------------------------------------------------------------
     // FUNCTIONS
@@ -123,48 +125,53 @@ contract Store {
         productIds++;
     }
 
-    function createBuyOrder(uint256 _productId, uint256 _quantity)
-        public
-        payable
-    {
-        StoreProduct memory product = storeProducts[_productId];
+  
 
-        uint256 priceInETH = _convertUSDToETH(product.priceInUSD);
+function createBuyOrder(uint256 _productId, uint256 _quantity, string memory _shippingAddress)
+    public
+    payable
+{
+    StoreProduct memory product = storeProducts[_productId];
 
-        if (product.productType == Type.FIXED) {
-            require(_quantity <= product.quantity, "unsuffisant quantity");
-            require(msg.value == priceInETH * _quantity, "unsuffisant amount");
+    uint256 priceInETH = _convertUSDToETH(product.priceInUSD);
 
-            ProductOrder memory order = ProductOrder(
-                orderIds,
-                _productId,
-                payable(msg.sender),
-                _quantity,
-                priceInETH * _quantity,
-                false,
-                Status.PENDING
-            );
-            storeOrders.push(order);
-        } else {
-            require(msg.value == priceInETH, "unsuffisant amount");
+    if (product.productType == Type.FIXED) {
+        require(_quantity <= product.quantity, "unsuffisant quantity");
+        require(msg.value == priceInETH * _quantity, "unsuffisant amount");
 
-            ProductOrder memory order = ProductOrder(
-                orderIds,
-                _productId,
-                payable(msg.sender),
-                0,
-                priceInETH,
-                false,
-                Status.PENDING
-            );
-            storeOrders.push(order);
-        }
+        ProductOrder memory order = ProductOrder(
+            orderIds,
+            _productId,
+            payable(msg.sender),
+            _quantity,
+            priceInETH * _quantity,
+            false,
+            Status.PENDING,
+            _shippingAddress
+        );
+        storeOrders.push(order);
+    } else {
+        require(msg.value == priceInETH, "unsuffisant amount");
 
-        product.activeOrders++;
-        storeProducts[_productId] = product;
-
-        orderIds++;
+        ProductOrder memory order = ProductOrder(
+            orderIds,
+            _productId,
+            payable(msg.sender),
+            0,
+            priceInETH,
+            false,
+            Status.PENDING,
+            _shippingAddress
+        );
+        storeOrders.push(order);
     }
+
+    product.activeOrders++;
+    storeProducts[_productId] = product;
+
+    orderIds++;
+}
+
 
     function fillOrder(uint256 _orderId) public onlyOwner {
         require(_orderId < orderIds, "wrong order id");

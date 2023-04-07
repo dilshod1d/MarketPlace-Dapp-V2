@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function StoreProductPage() {
+  const [shippingAddress, setShippingAddress] = useState("");
   const { store, id } = useParams();
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -139,6 +140,7 @@ function StoreProductPage() {
         const buy_tx = await productStore.createBuyOrder(
           Number(id),
           Number(buyQuantity),
+          shippingAddress,
           { value: order_total_price }
         );
         await buy_tx.wait();
@@ -205,6 +207,17 @@ function StoreProductPage() {
                       setBuyQuantity(e.target.value);
                     }}
                   />
+                  <br />
+                  <Form.Group controlId="shippingAddress">
+                    <Form.Label>Shipping Address</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter your shipping address"
+                      value={shippingAddress}
+                      onChange={(e) => setShippingAddress(e.target.value)}
+                    />
+                  </Form.Group>
+
                   <br />
                   <Button
                     variant="primary"

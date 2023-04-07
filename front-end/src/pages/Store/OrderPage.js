@@ -33,6 +33,7 @@ function OrderPage() {
     has_quantity: true,
     has_been_reviewed: false,
     order_status: orderStatus[0],
+    shippingAddress: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -64,6 +65,7 @@ function OrderPage() {
         (o) => Number(o[0]) === Number(order_id)
       )[0];
 
+      const shippingAddress = order[7];
       const product_id = Number(order[1]);
       const product = await productStore.callStatic.storeProducts(product_id);
 
@@ -81,6 +83,7 @@ function OrderPage() {
           order_quantity: Number(order[3]),
           has_been_reviewed: order[5],
           order_status: orderStatus[order[6]],
+          shippingAddress: shippingAddress,
         });
       }
     }
@@ -301,6 +304,10 @@ function OrderPage() {
               <tr>
                 <td className="p-2">Order Status</td>
                 <td>{orderState.order_status}</td>
+              </tr>
+              <tr>
+                <td className="p-2">Shipping Address</td>
+                <td>{orderState.shippingAddress}</td>
               </tr>
             </tbody>
           </Table>
