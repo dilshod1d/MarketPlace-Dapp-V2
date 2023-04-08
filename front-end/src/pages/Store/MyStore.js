@@ -223,7 +223,7 @@ function MyStore() {
             const product = await productStore.callStatic.storeProducts(
               product_id
             );
-
+            let shippingAddress = order[7];
             let item = {
               orderId: Number(order[0]),
               productId: product_id,
@@ -232,6 +232,7 @@ function MyStore() {
               quantity: Number(order[3]),
               TotalbuyPrice: utils.formatUnits(order[4], "ether"),
               status: orderStatus[order[6]],
+              shippingAddress,
             };
             return item;
           })
@@ -376,6 +377,7 @@ function MyStore() {
                               <th>quantity</th>
                               <th>Total price ETH</th>
                               <th>status</th>
+                              <th>shipping address</th>
                               <th></th>
                             </tr>
                           </thead>
@@ -408,6 +410,7 @@ function MyStore() {
                                     {parseFloat(order.TotalbuyPrice).toFixed(5)}
                                   </td>
                                   <td>{order.status}</td>
+                                  <td>{order.shippingAddress}</td>
 
                                   {order.status === "PENDING" ? (
                                     <td key={index}>
